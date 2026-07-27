@@ -389,13 +389,13 @@ def main():
     ap.add_argument("--html-only", action="store_true")
     args = ap.parse_args()
 
-    default = not args.api_only and not args.html_only
+    default = not args.api and not args.api_only and not args.html and not args.html_only
     do_api  = args.api or args.api_only
     do_html = args.html or args.html_only
 
     cfg = get_config()
 
-    if args.html_only:
+    if args.html_only or args.html:
         if os.path.exists(TMP):
             print(f"加载缓存的表数据: {TMP}")
             sec_html(cfg)
