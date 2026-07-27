@@ -1,0 +1,10 @@
+{
+  "arm": "r6offanchor_unified_spaq",
+  "n": 1124,
+  "SRCC": 0.8952,
+  "MAE": 1.0637,
+  "PLCC": 0.8977,
+  "mean": 4.0114,
+  "std": 1.5395,
+  "unique": 182
+}

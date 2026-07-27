@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude
+.claude/
+
+# PPT-master intermediate projects (keep scripts & docs only)
+projects/
+
+# Disk cache (large, excluded)
+runs/cache/
+
+# Secrets
+.env
+
+# Large data (images)
+评测数据集/
+

@@ -1,0 +1,16 @@
+run,route,dataset,n,SRCC,MAE,PLCC
+r1b_koniq,r1b,koniq_val,2014,0.5766,0.4628,0.6307
+r1b_spaq,r1b,spaq_test,1124,0.8813,0.8929,0.8858
+r1r_koniq,r1r,koniq_val,2014,0.6334,0.6883,0.6801
+r1r_spaq,r1r,spaq_test,1125,0.8674,1.0416,0.866
+r25_koniq,r25,koniq_val,2014,0.6193,0.5333,0.6683
+r25_spaq,r25,spaq_test,1124,0.8602,1.0138,0.8575
+r2_koniq,r2,koniq_val,2014,0.6061,0.6773,0.6792
+r2_spaq,r2,spaq_test,1124,0.8591,0.9714,0.8569
+r3_koniq,r3,koniq_val,2014,0.6207,0.4994,0.672
+r3_spaq,r3,spaq_test,1124,0.8607,1.008,0.858
+r4_koniq,r4,koniq_val,2014,0.6681,0.5541,0.735
+r4_spaq,r4,spaq_test,1124,0.8852,0.908,0.8865
+r5_spaq,r5,spaq_test,1124,0.891,0.944,0.8954
+r6_koniq,r6,koniq_val,2014,0.7335,0.491,0.7776
+r6_spaq,r6,spaq_test,1124,0.8932,0.9454,0.8966

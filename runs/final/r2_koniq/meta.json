@@ -1,0 +1,22 @@
+{
+  "route": "r2",
+  "dataset": "koniq_val",
+  "model": "qwen3-vl-32b-instruct",
+  "scale": [
+    1.0,
+    5.0
+  ],
+  "n_images": 2015,
+  "parse_failures": 1,
+  "score_min": 1.2,
+  "score_max": 4.8667,
+  "score_mean": 3.7531622144985555,
+  "wall_time_s": 92.8,
+  "ledger": {
+    "model": "qwen3-vl-32b-instruct",
+    "api_calls": 0,
+    "cache_hits": 10070,
+    "tokens_in": 0,
+    "tokens_out": 0
+  }
+}

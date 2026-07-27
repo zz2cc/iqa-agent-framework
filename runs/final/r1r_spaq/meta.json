@@ -1,0 +1,22 @@
+{
+  "route": "r1r",
+  "dataset": "spaq_test",
+  "model": "qwen3-vl-32b-instruct",
+  "scale": [
+    0.0,
+    10.0
+  ],
+  "n_images": 1125,
+  "parse_failures": 0,
+  "score_min": 1.2,
+  "score_max": 9.2,
+  "score_mean": 4.391199999999911,
+  "wall_time_s": 58.7,
+  "ledger": {
+    "model": "qwen3-vl-32b-instruct",
+    "api_calls": 22,
+    "cache_hits": 1103,
+    "tokens_in": 63536,
+    "tokens_out": 1021
+  }
+}
