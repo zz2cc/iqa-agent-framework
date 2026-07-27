@@ -486,7 +486,7 @@ def main():
 
     # ═══════════════ HTML 报告 ═══════════════
     if args.html:
-        html_path = os.path.join(cfg.runs_dir, "..", "verify_report.html")
+        html_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "verify_report.html")
         html = build_html(table_data, cfg)
         with open(html_path, "w", encoding="utf-8") as f:
             f.write(html)
