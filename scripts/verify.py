@@ -331,8 +331,6 @@ def sec5_api(cfg, limit=None):
                 common = sorted(set(r_["img_id"] for r_ in rows_api)&set(cp))
                 if common:
                     cm = compute_metrics({i:cp[i] for i in common}, mos)
-                    pm = compute_metrics({i:r["img_id"] for r in rows_api for i in [r["img_id"]] if i in common}, mos)
-                    # fix pm computation
                     pm2 = compute_metrics({r["img_id"]:r["score"] for r in rows_api if r["img_id"] in common}, mos)
                     print(f"      同批图缓存管线: SRCC={cm['SRCC']:.4f} MAE={cm['MAE']:.4f}")
                     print(f"      API vs 缓存: SRCC {pm2['SRCC']-cm['SRCC']:+.4f} MAE {pm2['MAE']-cm['MAE']:+.4f}")
