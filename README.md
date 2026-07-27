@@ -116,8 +116,6 @@ DASHSCOPE_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
 │   ├── 93_train_router_v3.py #   训练门控矩阵 W(3×7)（R6 核心）
 │   ├── 94_barevote_pilot.py  #   裸问释义投票 pilot
 │   ├── 95_run_r6.py          #   R6 统一框架执行
-│   ├── 96_anchor_probe.py    #   R1-anchor 锚点归因探针（考后 F-024）
-│   ├── 97_r6_offanchor.py    #   R6-offanchor 去锚点消融（考后 F-025）
 │   ├── 98_unified_round.py   #   统一框架 alpha 扫描
 │   ├── 99_final.py           #   统一框架收官
 │   ├── 99_finish_unified.py  #   统一框架收官续篇
@@ -131,7 +129,7 @@ DASHSCOPE_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
 ├── runs/                     # 实验结果（缓存 + 冻结产物）
 │   ├── cache/                #   SHA256 磁盘缓存（不入 git）
 │   ├── final/                #   主表 + 各臂 scores.csv + 分析图
-│   ├── posthoc/              #   考后诊断臂产物（R1-anchor / R6-offanchor / 8B 探针）
+│   ├── posthoc/              #   考后诊断臂产物（R1-anchor v3 / 8B 探针）
 │   ├── bt_pilot/             #   BT 试赛产物
 │   ├── full_tournament/      #   全量 BT 锦标赛产物（对决记录 + 排行榜）
 │   ├── router_v3/            #   门控矩阵 fusion_koniq.json（21 参数，BT 训练冻结产物）
@@ -218,16 +216,10 @@ python scripts/95_run_r6.py
 python scripts/50_eval.py --runs runs/final
 ```
 
-### 4.3 考后诊断与跨模型验证
+### 4.3 8B 对照与跨模型验证
 
 ```bash
-# R1-anchor 锚点归因探针（F-024）：分解 R1-bare→R1-rich 的增益来源
-python scripts/96_anchor_probe.py
-
-# R6-offanchor 去锚点消融（F-025）：验证锚点在多专家融合中的角色
-python scripts/97_r6_offanchor.py
-
-# 8B 对比：R1-bare + R1-anchor v3（双域）
+# 8B R1-bare + R1-anchor v3（双域）
 python scripts/run_8b_probe.py
 
 # 8B R6 统一框架（三专家+释义投票）
@@ -300,8 +292,6 @@ python scripts/make_paper.py
 | `86_full_tournament.py` | BT 全量锦标赛 | **是** | `runs/full_tournament/` |
 | `93_train_router_v3.py` | 训练逐图动态门控 W(3×7) | 否 | `runs/router_v3/fusion_koniq.json` |
 | `95_run_r6.py` | R6 统一框架执行 | **是**（仅释义投票） | `runs/final/r6_*/` |
-| `96_anchor_probe.py` | 锚点归因探针 | **是** | `runs/posthoc/r1anchor_*/` |
-| `97_r6_offanchor.py` | 去锚点消融 | **是** | `runs/posthoc/r6offanchor_*/` |
 | `apply_32b_w.py` | 32B W → 8B 跨模型迁移 | 否（全缓存命中） | 打印指标 |
 | `run_8b_probe.py` | 8B R1-bare + R1-anchor 探针 | **是** | `runs/posthoc/r1b_8b_*/`, `r1anchor_v3_*/` |
 | `run_8b_r6.py` | 8B R6 统一框架 | **是** | `runs/posthoc/r6_8b_*/` |

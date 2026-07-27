@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-"""统一框架收官：扫α → R6 → R6-offanchor → 总表"""
 import csv, json, os, sys, numpy as np
 from PIL import Image
 sys.stdout.reconfigure(errors="replace")
@@ -96,7 +95,6 @@ def run_arm(ds, eval_ds, gate_model, alpha, offanchor):
     paras = jload(pp) if os.path.exists(pp) else {}
 
     if offanchor:
-        ecp = os.path.join(cfg.runs_dir, "posthoc", f"r6offanchor_{ds}_experts.json")
         ec = jload(ecp) if os.path.exists(ecp) else {}
     else:
         r2p = os.path.join(cfg.runs_dir, "final", f"r2_{ds}", "scores.csv")
@@ -164,11 +162,8 @@ ss = write_eval("r6_unified_spaq", "spaq", "spaq_test", rs)
 print(f"KonIQ: SRCC={sk['SRCC']} MAE={sk['MAE']} PLCC={sk['PLCC']} n={sk['n']}")
 print(f"SPAQ:  SRCC={ss['SRCC']} MAE={ss['MAE']} PLCC={ss['PLCC']} n={ss['n']}")
 
-print("\n=== R6-offanchor unified ===")
 rok = run_arm("koniq", "koniq_val", gate_k, ak, True)
-sok = write_eval("r6offanchor_unified_koniq", "koniq", "koniq_val", rok)
 ros = run_arm("spaq", "spaq_test", None, best_a_s, True)
-sos = write_eval("r6offanchor_unified_spaq", "spaq", "spaq_test", ros)
 print(f"KonIQ: SRCC={sok['SRCC']} MAE={sok['MAE']} PLCC={sok['PLCC']} n={sok['n']}")
 print(f"SPAQ:  SRCC={sos['SRCC']} MAE={sos['MAE']} PLCC={sos['PLCC']} n={sos['n']}")
 
@@ -176,8 +171,6 @@ print(f"SPAQ:  SRCC={sos['SRCC']} MAE={sos['MAE']} PLCC={sos['PLCC']} n={sos['n'
 old = {}
 with open(os.path.join(cfg.runs_dir, "final", "main_table.csv")) as f:
     for r in csv.DictReader(f): old[(r["run"], r["dataset"])] = r
-r1a_k = jload(os.path.join(cfg.runs_dir, "posthoc", "r1anchor_koniq", "summary.json"))
-r1a_s = jload(os.path.join(cfg.runs_dir, "posthoc", "r1anchor_spaq", "summary.json"))
 
 print("\n" + "=" * 85)
 print("统一框架主表")
@@ -201,7 +194,6 @@ print(f"{'三  R6 (统一框架)':<28} {sk['SRCC']:>10.4f} {sk['MAE']:>8.4f} {sk
       f"{ss['SRCC']:>10.4f} {ss['MAE']:>8.4f} {ss['PLCC']:>8.4f}")
 print(f"{'考后 R1-anchor':<28} {r1a_k['SRCC']:>10.4f} {r1a_k['MAE']:>8.4f} {r1a_k['PLCC']:>8.4f}  "
       f"{r1a_s['SRCC']:>10.4f} {r1a_s['MAE']:>8.4f} {r1a_s['PLCC']:>8.4f}")
-print(f"{'考后 R6-offanchor':<28} {sok['SRCC']:>10.4f} {sok['MAE']:>8.4f} {sok['PLCC']:>8.4f}  "
       f"{sos['SRCC']:>10.4f} {sos['MAE']:>8.4f} {sos['PLCC']:>8.4f}")
 print("-" * 85)
 print(f"KonIQ α=0.6  SPAQ α={best_a_s:.1f}  SPAQ gate=FAIL→等权回退")

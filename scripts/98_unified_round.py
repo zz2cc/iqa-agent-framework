@@ -6,7 +6,6 @@
   2. 训练 SPAQ 3×7 门控矩阵 (本地, 0 API)
   3. 扫 SPAQ α (本地, 0 API)
   4. 跑统一 R6-SPAQ (全缓存, 0 API)
-  5. 跑统一 R6-offanchor 双域 (全缓存, 0 API)
   6. 50_eval → 新主表 (第4次读MOS)
   7. 旧 R4/R5 从主表移除
 
@@ -415,7 +414,6 @@ def step3_scan_alpha(cfg, gate_model, ds):
 
 
 # ═══════════════════════════════════════════════════════════════
-# Step 4 & 5: Run unified R6 and R6-offanchor
 # ═══════════════════════════════════════════════════════════════
 
 def run_unified_arm(cfg, ds, eval_ds, gate_model, alpha, offanchor=False):
@@ -433,7 +431,6 @@ def run_unified_arm(cfg, ds, eval_ds, gate_model, alpha, offanchor=False):
 
     # Expert scores - from R2 cache (original anchored) or offanchor cache
     if offanchor:
-        expert_cache_path = os.path.join(cfg.runs_dir, "posthoc", f"r6offanchor_{ds}_experts.json")
         expert_cache = jload(expert_cache_path) if os.path.exists(expert_cache_path) else {}
     else:
         # Read from R2 cache (original anchored experts)
@@ -558,15 +555,11 @@ async def main_async():
     s_s = eval_arm(cfg, dir_s, "spaq", "spaq_test")
     print(f"  SPAQ:  SRCC={s_s['SRCC']} MAE={s_s['MAE']} PLCC={s_s['PLCC']} n={s_s['n']}")
 
-    # ── Step 5: Unified R6-offanchor both domains ──
-    print("\n=== 统一 R6-offanchor ===")
     rows_ok = run_unified_arm(cfg, "koniq", "koniq_val", gate_koniq, alpha_k, offanchor=True)
-    dir_ok = write_arm_output(cfg, "r6offanchor_unified_koniq", "koniq", rows_ok)
     s_ok = eval_arm(cfg, dir_ok, "koniq", "koniq_val")
     print(f"  KonIQ: SRCC={s_ok['SRCC']} MAE={s_ok['MAE']} PLCC={s_ok['PLCC']} n={s_ok['n']}")
 
     rows_os = run_unified_arm(cfg, "spaq", "spaq_test", gate_spaq, alpha_s, offanchor=True)
-    dir_os = write_arm_output(cfg, "r6offanchor_unified_spaq", "spaq", rows_os)
     s_os = eval_arm(cfg, dir_os, "spaq", "spaq_test")
     print(f"  SPAQ:  SRCC={s_os['SRCC']} MAE={s_os['MAE']} PLCC={s_os['PLCC']} n={s_os['n']}")
 
@@ -595,15 +588,6 @@ async def main_async():
         print(f"{arm_label:<30} {rk.get('SRCC','?'):>10} {rk.get('MAE','?'):>10} {rk.get('PLCC','?'):>10} {rs.get('SRCC','?'):>10} {rs.get('MAE','?'):>10} {rs.get('PLCC','?'):>10}")
 
     print(f"{'R6 (统一框架)':<30} {s_k['SRCC']:>10.4f} {s_k['MAE']:>10.4f} {s_k['PLCC']:>10.4f} {s_s['SRCC']:>10.4f} {s_s['MAE']:>10.4f} {s_s['PLCC']:>10.4f}")
-
-    # R1-anchor (from posthoc)
-    for arm_label, k_dir, s_dir in [
-        ("R1-anchor (考后)", "r1anchor_koniq", "r1anchor_spaq"),
-        ("R6-offanchor (考后)", "r6offanchor_unified_koniq", "r6offanchor_unified_spaq"),
-    ]:
-        sk = json.load(open(os.path.join(out_root, k_dir, "summary.json")))
-        ss = json.load(open(os.path.join(out_root, s_dir, "summary.json")))
-        print(f"{arm_label:<30} {sk['SRCC']:>10.4f} {sk['MAE']:>10.4f} {sk['PLCC']:>10.4f} {ss['SRCC']:>10.4f} {ss['MAE']:>10.4f} {ss['PLCC']:>10.4f}")
 
     print(f"\nKonIQ: α={alpha_k:.1f}  SPAQ: α={alpha_s:.1f}  gate={'PASS' if gate_spaq else 'FAIL→等权'}")
     print(f"账本: {client.ledger() if 'client' in dir() else 'N/A'}")

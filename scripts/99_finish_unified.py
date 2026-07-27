@@ -162,7 +162,6 @@ def scan_alpha_spaq():
     return best_a
 
 
-# ═══ Step 4+5: Unified R6 and R6-offanchor ═══
 
 def run_arm(ds, eval_ds, gate_model, alpha, offanchor):
     from iqa_agent.data import load_images
@@ -178,7 +177,6 @@ def run_arm(ds, eval_ds, gate_model, alpha, offanchor):
 
     # Expert scores: anchored (R2 cache) vs offanchor (posthoc cache)
     if offanchor:
-        ec_path = os.path.join(cfg.runs_dir, "posthoc", f"r6offanchor_{ds}_experts.json")
         ec = jload(ec_path) if os.path.exists(ec_path) else {}
     else:
         r2_path = os.path.join(cfg.runs_dir, "final", f"r2_{ds}", "scores.csv")
@@ -271,11 +269,8 @@ ss = write_and_eval("r6_unified_spaq", "spaq", "spaq_test", rs)
 print(f"KonIQ: SRCC={sk['SRCC']} MAE={sk['MAE']} PLCC={sk['PLCC']} n={sk['n']}")
 print(f"SPAQ:  SRCC={ss['SRCC']} MAE={ss['MAE']} PLCC={ss['PLCC']} n={ss['n']}")
 
-print("\n=== Step 5: 统一 R6-offanchor ===\n")
 rok = run_arm("koniq", "koniq_val", gate_k, ak, offanchor=True)
-sok = write_and_eval("r6offanchor_unified_koniq", "koniq", "koniq_val", rok)
 ros = run_arm("spaq", "spaq_test", None, as_, offanchor=True)
-sos = write_and_eval("r6offanchor_unified_spaq", "spaq", "spaq_test", ros)
 print(f"KonIQ: SRCC={sok['SRCC']} MAE={sok['MAE']} PLCC={sok['PLCC']} n={sok['n']}")
 print(f"SPAQ:  SRCC={sos['SRCC']} MAE={sos['MAE']} PLCC={sos['PLCC']} n={sos['n']}")
 
@@ -287,14 +282,6 @@ with open(os.path.join(cfg.runs_dir, "final", "main_table.csv")) as f:
         old_table[(r["run"], r["dataset"])] = r
 
 for dk, ds_key in [("koniq", "koniq_val"), ("spaq", "spaq_test")]:
-    for arm_dir in ["r1anchor_koniq", "r1anchor_spaq"]:
-        p = os.path.join(cfg.runs_dir, "posthoc", arm_dir, "summary.json")
-        if os.path.exists(p):
-            old_table[(arm_dir, dk)] = jload(p)
-
-r1a = (jload(os.path.join(cfg.runs_dir, "posthoc", "r1anchor_koniq", "summary.json")),
-       jload(os.path.join(cfg.runs_dir, "posthoc", "r1anchor_spaq", "summary.json")))
-
 print("\n" + "=" * 85)
 print("统一框架主表 (final)")
 print("=" * 85)
@@ -316,6 +303,5 @@ for label, kk, ss_old in ROWS:
 
 print(f"{'三  R6 (统一框架)':<28} {sk['SRCC']:>10.4f} {sk['MAE']:>8.4f} {sk['PLCC']:>8.4f}  {ss['SRCC']:>10.4f} {ss['MAE']:>8.4f} {ss['PLCC']:>8.4f}")
 print(f"{'考后 R1-anchor':<28} {r1a[0]['SRCC']:>10.4f} {r1a[0]['MAE']:>8.4f} {r1a[0]['PLCC']:>8.4f}  {r1a[1]['SRCC']:>10.4f} {r1a[1]['MAE']:>8.4f} {r1a[1]['PLCC']:>8.4f}")
-print(f"{'考后 R6-offanchor':<28} {sok['SRCC']:>10.4f} {sok['MAE']:>8.4f} {sok['PLCC']:>8.4f}  {sos['SRCC']:>10.4f} {sos['MAE']:>8.4f} {sos['PLCC']:>8.4f}")
 print("-" * 85)
 print(f"SPAQ 门控: FAIL→等权  |  KonIQ α={ak:.1f}  SPAQ α={as_:.1f}")
