@@ -51,16 +51,22 @@ class Config:
 
     def __post_init__(self):
         _data = os.environ.get("IQADATA", os.path.join(ROOT, "评测数据集"))
+        # 路径不存在时，CSV 标签文件回退到项目根目录（仓库自带副本）
+        def _data_or_root(subpath):
+            p = os.path.join(_data, subpath)
+            if os.path.exists(p):
+                return p
+            return os.path.join(ROOT, os.path.basename(subpath))
         if not self.koniq_img_dir:
             self.koniq_img_dir = os.path.join(_data, "koniq-10k", "512x384")
         if not self.koniq_val_csv:
-            self.koniq_val_csv = os.path.join(_data, "koniq-10k", "koniq10k_val.csv")
+            self.koniq_val_csv = _data_or_root("koniq-10k/koniq10k_val.csv")
         if not self.koniq_train_csv:
-            self.koniq_train_csv = os.path.join(_data, "koniq-10k", "koniq10k_train.csv")
+            self.koniq_train_csv = _data_or_root("koniq-10k/koniq10k_train.csv")
         if not self.spaq_img_dir:
             self.spaq_img_dir = os.path.join(_data, "SPAQ", "images", "TestImage")
         if not self.spaq_test_csv:
-            self.spaq_test_csv = os.path.join(_data, "SPAQ", "spaqTest.csv")
+            self.spaq_test_csv = _data_or_root("SPAQ/spaqTest.csv")
 
 
 def get_config() -> Config:
