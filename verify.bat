@@ -30,7 +30,7 @@ if /i "%RUN_API%"=="y" (
     echo [步骤 2/2] API 抽样验证 (KonIQ+SPAQ 各 200 张)
     echo   预计 5-10 分钟...
     echo.
-    python -u scripts/verify.py --api
+    python -u scripts/verify.py --api-only
     echo.
     echo API 抽样完成。账本见上方。
 ) else (
@@ -44,7 +44,7 @@ set /p RUN_HTML="是否生成并打开 HTML 报告? (y/n): "
 if /i "%RUN_HTML%"=="y" (
     echo.
     echo 正在生成 HTML 报告...
-    python scripts/verify.py --html
+    python scripts/verify.py --html-only
     echo.
     echo HTML 报告: verify_report.html
     start verify_report.html
