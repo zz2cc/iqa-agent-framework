@@ -143,7 +143,7 @@ def sec3_pipeline(cfg, limit=None):
     print("=" * 72)
     POOL = ["S-TECH","S-GLOBAL","S-CONTENT"]
     FEAT_KEYS = ["lap_var","noise","colorful","bright","logpix","aspect","spread"]
-    fk = jload(os.path.join(cfg.runs_dir,"router_v3","fusion_koniq.json"))
+    fk = json.load(open(os.path.join(cfg.runs_dir,"router_v3","fusion_koniq.json"), encoding="utf-8"))
     W = np.array(fk["W"]); mu = np.array(fk["mu"])
     sd = np.array([s if s>1e-6 else 1.0 for s in fk["sd"]])
 
@@ -181,8 +181,14 @@ def sec3_pipeline(cfg, limit=None):
             f = np.array([f_raw[k] for k in FEAT_KEYS[:6]]+[sp], dtype=float)
             for j,k in enumerate(FEAT_KEYS):
                 if k in ("lap_var","noise","colorful"): f[j]=np.log(max(f[j],1e-6))
-            if ds=="koniq": g = softmax(W @ ((f-mu)/sd)); fus = float(g @ np.array(s3))
-            else: g = np.array([1/3,1/3,1/3]); fus = float(np.mean(s3))
+            if ds=="koniq":
+                logits = W @ ((f-mu)/sd)
+                g = softmax(logits)
+                fus = float(g @ np.array(s3))
+            else:
+                logits = np.zeros(3)
+                g = np.array([1/3,1/3,1/3])
+                fus = float(np.mean(s3))
             vote = vote_mean(iid, r1b, paras)
             if vote is None: continue
             final = round(alpha*fus + (1-alpha)*vote, 4)
@@ -192,7 +198,7 @@ def sec3_pipeline(cfg, limit=None):
                 print(f"      专家分(缓存): TECH={s3[0]:.2f} GLOBAL={s3[1]:.2f} CONTENT={s3[2]:.2f} spread={sp:.2f}")
                 print(f"      像素特征:      lap_var={f_raw['lap_var']:.1f} noise={f_raw['noise']:.3f} colorful={f_raw['colorful']:.1f}")
                 print(f"                      bright={f_raw['bright']:.1f} logpix={f_raw['logpix']:.2f} aspect={f_raw['aspect']:.3f}")
-                if ds=="koniq": print(f"      门控logits:    [{W@((f-mu)/sd)[0]:+.3f}, {W@((f-mu)/sd)[1]:+.3f}, {W@((f-mu)/sd)[2]:+.3f}]")
+                if ds=="koniq": print(f"      门控logits:    [{logits[0]:+.3f}, {logits[1]:+.3f}, {logits[2]:+.3f}]")
                 print(f"      话语权 g:      TECH={g[0]:.3f} GLOBAL={g[1]:.3f} CONTENT={g[2]:.3f}")
                 print(f"      融合分:        {fus:.4f}  |  投票分: {vote:.4f}")
                 print(f"      最终分:        {alpha}*{fus:.4f}+{1-alpha}*{vote:.4f}={final:.4f}")
@@ -253,7 +259,7 @@ def sec5_api(cfg, limit=None):
 
     POOL = ["S-TECH","S-GLOBAL","S-CONTENT"]
     FEAT_KEYS = ["lap_var","noise","colorful","bright","logpix","aspect","spread"]
-    fk = jload(os.path.join(cfg.runs_dir,"router_v3","fusion_koniq.json"))
+    fk = json.load(open(os.path.join(cfg.runs_dir,"router_v3","fusion_koniq.json"), encoding="utf-8"))
     W = np.array(fk["W"]); mu = np.array(fk["mu"])
     sd = np.array([s if s>1e-6 else 1.0 for s in fk["sd"]])
 
