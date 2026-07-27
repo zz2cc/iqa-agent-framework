@@ -14,6 +14,7 @@ from iqa_agent.data import load_mos
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CACHE_JSON = os.path.join(BASE, ".verify_cache.json")
+API_JSON   = os.path.join(BASE, ".verify_api.json")
 
 POOL = ["S-TECH", "S-GLOBAL", "S-CONTENT"]
 FEAT_KEYS = ["lap_var", "noise", "colorful", "bright", "logpix", "aspect", "spread"]
@@ -319,6 +320,16 @@ def sec_api(cfg, limit=None):
                 api_results[(ds, "cached_same")] = cm
 
         print(f"\n  账本: api_calls={client.calls}, cache_hits={client.cache_hits}, tokens_in={client.tokens_in}, tokens_out={client.tokens_out}")
+        # 保存 API 结果供 --html-only 使用
+        api_save = {}
+        for (dom, tag), m in api_results.items():
+            if m and m.get("SRCC"):
+                api_save[f"{dom}_{tag}"] = {"SRCC": m["SRCC"], "MAE": m["MAE"], "n": m.get("n", 0)}
+        try:
+            with open(API_JSON, "w", encoding="utf-8") as f:
+                json.dump(api_save, f, ensure_ascii=False)
+        except Exception:
+            pass
     asyncio.run(run())
     return api_results
 
@@ -356,6 +367,18 @@ def print_compare(cached_table, api_results=None):
 
 def sec_html(cfg, cached_table, api_results=None):
     print("\n" + "=" * 72); print("[HTML] 生成自包含报告"); print("=" * 72)
+    html_path = os.path.join(BASE, "verify_report.html")
+    # 尝试从磁盘加载 API 结果（--html-only 场景）
+    if not api_results and os.path.exists(API_JSON):
+        try:
+            raw = json.load(open(API_JSON, encoding="utf-8"))
+            api_results = {}
+            for k, v in raw.items():
+                parts = k.split("_", 1)
+                if len(parts) == 2:
+                    api_results[(parts[0], parts[1])] = v
+        except Exception:
+            pass
     html_path = os.path.join(BASE, "verify_report.html")
     rows_h = ""
     for row in cached_table:
