@@ -246,12 +246,30 @@ def sec_api(cfg, limit=None):
             ("spaq", "spaq_test", 0, 10, "r2_spaq", 0.3),
         ]:
             print(f"\n  ── {ds.upper()} API 抽样 ──")
-            mos = load_mos(cfg, eval_ds)
-            from iqa_agent.data import load_images
-            imgs = {r.img_id: r.path for r in load_images(cfg, eval_ds)}
-            ids_all = sorted(set(imgs) & set(mos))
+            # 优先用完整数据集，缺失时回退到 test_data/
+            test_img_dir = os.path.join(BASE, "test_data", ds)
+            test_mos_csv  = os.path.join(BASE, "test_data", f"{ds}_mos.csv")
+            use_testdata = not os.path.isdir(cfg.koniq_img_dir if ds=="koniq" else cfg.spaq_img_dir)
+            if use_testdata and os.path.isdir(test_img_dir):
+                src_label = "test_data"
+                imgs = {}
+                for f in os.listdir(test_img_dir):
+                    if f.lower().endswith(('.jpg','.jpeg','.png')):
+                        imgs[f] = os.path.join(test_img_dir, f)
+                mos = {}
+                if os.path.exists(test_mos_csv):
+                    with open(test_mos_csv, encoding="utf-8-sig") as f:
+                        for r in csv.DictReader(f):
+                            mos[r["img_id"]] = float(r["MOS"])
+                ids_all = sorted(set(imgs) & set(mos))
+            else:
+                src_label = "原始数据集"
+                mos = load_mos(cfg, eval_ds)
+                from iqa_agent.data import load_images
+                imgs = {r.img_id: r.path for r in load_images(cfg, eval_ds)}
+                ids_all = sorted(set(imgs) & set(mos))
             random.seed(42); sample = sorted(random.sample(ids_all, min(200, len(ids_all))))
-            print(f"    抽样: {len(sample)} 张")
+            print(f"    数据源: {src_label}  抽样: {len(sample)} 张")
 
             expert_api = {}
             for sk in POOL:
@@ -270,15 +288,16 @@ def sec_api(cfg, limit=None):
                 ok_n = sum(1 for r in raw if not isinstance(r, Exception) and r[2] is not None)
                 print(f"      {sk}: {ok_n}/{len(sample)} 张{' (全缓存命中)' if ok_n == len(sample) and client.cache_hits > 0 else ''}")
 
-            # compare with cached expert scores
-            ce = load_expert(os.path.join(cfg.runs_dir, "final", r2d, "scores.csv"), POOL)
-            diffs = []
-            for iid in sample:
-                if iid in expert_api and iid in ce:
-                    for sk in POOL:
-                        av = expert_api[iid].get(sk); cv = ce[iid].get(sk)
-                        if av is not None and cv is not None: diffs.append(abs(av - cv))
-            if diffs: print(f"      专家分 |实时-缓存|: 均值={np.mean(diffs):.3f}  中位数={np.median(diffs):.3f}  最大={np.max(diffs):.3f}")
+            # compare with cached expert scores (skip if using test_data)
+            if not use_testdata:
+                ce = load_expert(os.path.join(cfg.runs_dir, "final", r2d, "scores.csv"), POOL)
+                diffs = []
+                for iid in sample:
+                    if iid in expert_api and iid in ce:
+                        for sk in POOL:
+                            av = expert_api[iid].get(sk); cv = ce[iid].get(sk)
+                            if av is not None and cv is not None: diffs.append(abs(av - cv))
+                if diffs: print(f"      专家分 |实时-缓存|: 均值={np.mean(diffs):.3f}  中位数={np.median(diffs):.3f}  最大={np.max(diffs):.3f}")
 
             # run pipeline with API scores
             paras = jload(os.path.join(cfg.runs_dir, f"r6_{ds}_paras.json"))
