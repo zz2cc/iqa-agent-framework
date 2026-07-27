@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """复现验证脚本（唯一入口）。用法见 README。"""
-import csv, json, os, sys, time, argparse, random, base64, asyncio
+import csv, json, os, sys, time, argparse, random, base64, asyncio, io
 import numpy as np
 from PIL import Image
 
@@ -306,6 +306,13 @@ def sec_api(cfg, limit=None):
             print(f"      API管线 ({len(rows_api)}张): SRCC={ma['SRCC']:.4f}  MAE={ma['MAE']:.4f}" if ma["SRCC"] else "      API管线: 无有效结果")
             api_results[(ds, "api")] = ma
 
+            # 保存逐图 (MOS, API分数) 供 HTML 散点图
+            api_points = []
+            for r in rows_api:
+                if r["img_id"] in mos:
+                    api_points.append([mos[r["img_id"]], r["score"]])
+            api_results[(ds, "api_points")] = api_points
+
             # compare with cached pipeline on same images
             cp = load_pred(os.path.join(cfg.runs_dir, "final", r2d.replace("r2_", "r6_"), "scores.csv"))
             if ds == "spaq":
@@ -323,8 +330,10 @@ def sec_api(cfg, limit=None):
         # 保存 API 结果供 --html-only 使用
         api_save = {}
         for (dom, tag), m in api_results.items():
-            if m and m.get("SRCC"):
+            if isinstance(m, dict) and m.get("SRCC"):
                 api_save[f"{dom}_{tag}"] = {"SRCC": m["SRCC"], "MAE": m["MAE"], "n": m.get("n", 0)}
+            elif isinstance(m, list):  # api_points
+                api_save[f"{dom}_{tag}"] = m
         try:
             with open(API_JSON, "w", encoding="utf-8") as f:
                 json.dump(api_save, f, ensure_ascii=False)
@@ -401,6 +410,38 @@ def sec_html(cfg, cached_table, api_results=None):
     if "fig4_scatter.png" in figs_b64: img_tags += f"<img src='data:image/png;base64,{figs_b64['fig4_scatter.png']}'>"
     if "fig3_w.png" in figs_b64: img_tags += f"<img src='data:image/png;base64,{figs_b64['fig3_w.png']}'>"
 
+    # API 散点图
+    api_scatter_b64 = ""
+    if api_results:
+        try:
+            import matplotlib
+            matplotlib.use("Agg")
+            import matplotlib.pyplot as plt
+            plt.rcParams["font.sans-serif"] = ["Microsoft YaHei", "SimHei"]
+            plt.rcParams["axes.unicode_minus"] = False
+            fig, axes = plt.subplots(1, 2, figsize=(10, 4.3))
+            for ax, ds, label in [(axes[0], "koniq", "(a) KonIQ API重跑 (200张)"),
+                                   (axes[1], "spaq", "(b) SPAQ API重跑 (200张)")]:
+                pts = api_results.get((ds, "api_points"), [])
+                if pts:
+                    xs = [p[0] for p in pts]; ys = [p[1] for p in pts]
+                    ax.scatter(xs, ys, s=12, c="#2A78D6", alpha=0.6, edgecolors="none")
+                    lim = [0.5, 5.5] if ds == "koniq" else [-0.5, 10.5]
+                    ax.plot(lim, lim, "k--", lw=1)
+                    ax.set_xlim(lim); ax.set_ylim(lim)
+                    ax.set_xlabel("MOS"); ax.set_ylabel("API预测分")
+                    from scipy.stats import spearmanr
+                    srcc, _ = spearmanr(xs, ys)
+                    ax.set_title(f"{label}  SRCC={srcc:.3f}", fontsize=11)
+            buf = io.BytesIO()
+            fig.savefig(buf, format="png", dpi=150, bbox_inches="tight")
+            plt.close(fig)
+            api_scatter_b64 = base64.b64encode(buf.getvalue()).decode()
+            if api_scatter_b64:
+                img_tags += f"<h2>API重跑·散点图</h2><img src='data:image/png;base64,{api_scatter_b64}'>"
+        except Exception as e:
+            img_tags += f"<p class='note'>API散点图生成失败: {e}</p>"
+
     html = f"""<!DOCTYPE html><html lang="zh"><head><meta charset="UTF-8"><title>IQA Agent 复现验证报告</title>
 <style>body{{font-family:system-ui,sans-serif;max-width:1100px;margin:40px auto;padding:0 24px;color:#1a1a1a;background:#fcfcfb}}
 h1{{font-size:24px;border-bottom:2px solid #1b2a4a;padding-bottom:8px}}h2{{font-size:18px;color:#1b2a4a;margin-top:32px}}
@@ -433,7 +474,17 @@ def main():
     if args.html_only or args.html:
         tb = json.load(open(CACHE_JSON, encoding="utf-8")) if os.path.exists(CACHE_JSON) else []
         if not tb: print("错误: 未找到 .verify_cache.json，请先运行 python scripts/verify.py"); return
-        sec_html(cfg, tb)
+        # 从磁盘加载 API 结果
+        api_from_disk = {}
+        if os.path.exists(API_JSON):
+            try:
+                raw = json.load(open(API_JSON, encoding="utf-8"))
+                for k, v in raw.items():
+                    parts = k.split("_", 1)
+                    if len(parts) == 2:
+                        api_from_disk[(parts[0], parts[1])] = v
+            except Exception: pass
+        sec_html(cfg, tb, api_from_disk if api_from_disk else None)
         return
 
     if args.api_only:
