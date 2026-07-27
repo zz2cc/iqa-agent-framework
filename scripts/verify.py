@@ -147,6 +147,9 @@ def sec_pipeline(cfg, limit=None):
         paras = jload(os.path.join(cfg.runs_dir, paraf))
         mos = load_mos(cfg, eval_ds)
         img_dir = cfg.koniq_img_dir if ds == "koniq" else cfg.spaq_img_dir
+        if not os.path.isdir(img_dir):
+            print(f"    图片目录缺失: {img_dir}\n    [跳过] 需完整数据集 或 设置 IQADATA 路径")
+            continue
         ids = sorted(set(expert) & set(r1b) & set(mos))
         if limit: random.seed(42); ids = sorted(random.sample(ids, min(limit, len(ids))))
         print(f"    图像数: {len(ids)}")
