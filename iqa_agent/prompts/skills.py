@@ -183,3 +183,12 @@ def build_r1_bare_prompt(scale_key: str) -> str:
 def build_r1_rich_prompt(scale_key: str) -> str:
     """R1-rich = 仅 S-GLOBAL 专家（带完整细则），无多视角。"""
     return build_skill_prompt("S-GLOBAL", scale_key)
+
+
+# 裸问四释义：同一意思四种问法，取均值平滑量化噪声
+BARE_PARAS = [
+    "Rate the overall quality of this image on a scale from {lo} to {hi}. Reply with only a single number.",
+    "On a scale from {lo} to {hi}, how would you rate the overall quality of this image? Reply with only a single number.",
+    "Give a single overall quality score for this image, from {lo} (worst) to {hi} (best). Reply with only the number.",
+    "As an image quality rater, assign one overall quality score from {lo} to {hi} to this image. Reply with only a single number.",
+]

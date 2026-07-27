@@ -12,7 +12,6 @@
 import argparse
 import asyncio
 import csv
-import importlib.util
 import json
 import os
 import sys
@@ -25,16 +24,8 @@ from iqa_agent.config import get_config
 from iqa_agent.client import VLMClient, gather_with_progress
 from iqa_agent.data import load_images
 from iqa_agent.scoring import parse_score
-
-_spec = importlib.util.spec_from_file_location(
-    "bv94", os.path.join(os.path.dirname(os.path.abspath(__file__)), "94_barevote_pilot.py"))
-_bv = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(_bv)
-
-_spec2 = importlib.util.spec_from_file_location(
-    "r45", os.path.join(os.path.dirname(os.path.abspath(__file__)), "90_run_r45.py"))
-_r45 = importlib.util.module_from_spec(_spec2)
-_spec2.loader.exec_module(_r45)
+from iqa_agent.prompts.skills import BARE_PARAS
+from iqa_agent.router import opencv_features, spaq_base_rows, load_spaq_gate, gate_weights
 
 POOL = ["S-TECH", "S-GLOBAL", "S-CONTENT"]
 ALPHA = 0.6
@@ -94,7 +85,7 @@ async def run_para_votes(cfg, client, images, ids, lo, hi, cache_path):
     votes = jload(cache_path) if os.path.exists(cache_path) else {}
 
     async def one(img_id, k):
-        text, _ = await client.score_image(images[img_id], _bv.BARE_PARAS[k].format(lo=int(lo), hi=int(hi)),
+        text, _ = await client.score_image(images[img_id], BARE_PARAS[k].format(lo=int(lo), hi=int(hi)),
                                            temperature=0.0)
         p = parse_score(text, (lo, hi))
         return img_id, k, (p["score"] if p else None)
@@ -138,7 +129,7 @@ async def main_async(args):
             vote = float(np.mean(bare_parts))
         except (json.JSONDecodeError, TypeError, KeyError, ValueError):
             continue
-        feat = _r45.opencv_features(Image.open(images_k[img_id]))
+        feat = opencv_features(Image.open(images_k[img_id]))
         fus, g = dynamic_fusion(fusion, skills3, feat)
         final = ALPHA * fus + (1 - ALPHA) * vote
         reason = (f"R6=0.6·动态融合({','.join(f'{s}×{w:.2f}' for s, w in zip(POOL, g))})"
@@ -147,8 +138,8 @@ async def main_async(args):
     write_arm(cfg, "r6_koniq", "koniq", rows)
 
     # ---------- R6-SPAQ ----------
-    r1b, r1r, r2 = _r45.spaq_base_rows(cfg)
-    g95 = _r45.load_spaq_gate(cfg)
+    r1b, r1r, r2 = spaq_base_rows(cfg)
+    g95 = load_spaq_gate(cfg)
     comp = jload(os.path.join(cfg.runs_dir, "r5_spaq_components.json"))
     images_s = {r.img_id: r.path for r in load_images(cfg, "spaq_test")}
     ids_s = list(r1b.keys())[: args.limit or None]
@@ -174,7 +165,7 @@ async def main_async(args):
             continue
         img = Image.open(images_s[img_id])
         img.thumbnail((1568, 1568), Image.BICUBIC)
-        gw = _r45.gate_weights(g95, _r45.opencv_features(img))
+        gw = gate_weights(g95, opencv_features(img))
         final = float(gw[0] * bare + gw[1] * rich + gw[2] * multi)
         reason = f"R6=R5结构+bare投票 | bare {gw[0]:.2f}/rich {gw[1]:.2f}/multi {gw[2]:.2f}"
         rows.append({"img_id": img_id, "score": round(final, 4), "reason": reason})

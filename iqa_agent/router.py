@@ -117,3 +117,78 @@ def load_router_assets(cfg) -> dict:
         with open(w_path) as f:
             assets["fitted_weights"] = json.load(f)
     return assets
+
+
+# ---------- 共享工具函数（R6 脚本依赖） ----------
+
+def read_scores_csv(path):
+    """读取 scores.csv 返回 {img_id: row_dict}。"""
+    import csv as _csv
+    rows = {}
+    if not os.path.exists(path):
+        return rows
+    with open(path, encoding="utf-8-sig") as f:
+        for r in _csv.DictReader(f):
+            rows[r["img_id"]] = r
+    return rows
+
+
+def opencv_features(img):
+    """提取 7 维手工像素特征（无大模型）。"""
+    import numpy as np
+    arr = np.asarray(img.convert("RGB"), dtype=np.float64)
+    gray = 0.299 * arr[..., 0] + 0.587 * arr[..., 1] + 0.114 * arr[..., 2]
+    c = gray[1:-1, 1:-1]
+    lap = -4 * c + gray[:-2, 1:-1] + gray[2:, 1:-1] + gray[1:-1, :-2] + gray[1:-1, 2:]
+    lap_var = float(np.var(lap))
+    box = (gray[:-2, :-2] + gray[:-2, 1:-1] + gray[:-2, 2:] + gray[1:-1, :-2] + c +
+           gray[1:-1, 2:] + gray[2:, :-2] + gray[2:, 1:-1] + gray[2:, 2:]) / 9.0
+    res = c - box
+    gx = np.abs(gray[1:-1, 2:] - gray[1:-1, :-2])
+    thr = np.quantile(gx, 0.25)
+    flat = res[gx <= thr]
+    noise = float(1.4826 * np.median(np.abs(flat - np.median(flat)))) if flat.size else 0.0
+    rg = arr[..., 0] - arr[..., 1]
+    yb = 0.5 * (arr[..., 0] + arr[..., 1]) - arr[..., 2]
+    colorful = float(np.sqrt(rg.std() ** 2 + yb.std() ** 2) + 0.3 * np.sqrt(rg.mean() ** 2 + yb.mean() ** 2))
+    h, w = gray.shape
+    return {"lap_var": lap_var, "noise": noise, "colorful": colorful,
+            "bright": float(gray.mean()), "logpix": float(np.log(h * w)), "aspect": float(w / h)}
+
+
+def load_spaq_gate(cfg):
+    """加载 SPAQ 软门控模型。文件不存在时返回等权回退。"""
+    import numpy as np
+    path = os.path.join(cfg.runs_dir, "router_v2", "route_spaq.json")
+    if not os.path.exists(path):
+        # 等权回退：3 槽位各 1/3（SPAQ 门控未过验证，等权是正确行为）
+        return {
+            "feat_keys": ["lap_var", "noise", "colorful", "bright", "logpix", "aspect", "spread"],
+            "mu": [0.0] * 7,
+            "sd": [1.0] * 7,
+            "W": [[0.0] * 7, [0.0] * 7, [0.0] * 7],
+        }
+    with open(path) as f:
+        return json.load(f)
+
+
+def gate_weights(g, feat):
+    """计算 softmax 门控权重。g 来自 load_spaq_gate，feat 来自 opencv_features。"""
+    import numpy as np
+    raw = np.array([feat[k] for k in g["feat_keys"]], dtype=float)
+    for j, k in enumerate(g["feat_keys"]):
+        if k in ("lap_var", "noise", "colorful"):
+            raw[j] = np.log(max(raw[j], 1e-6))
+    z = (raw - np.array(g["mu"])) / np.array([s if s > 1e-6 else 1.0 for s in g["sd"]])
+    zz = np.array(g["W"]) @ z
+    zz = zz - zz.max()
+    e = np.exp(zz)
+    return e / e.sum()
+
+
+def spaq_base_rows(cfg):
+    """读取 SPAQ R1-bare / R1-rich / R2 评分缓存。"""
+    r1b = read_scores_csv(os.path.join(cfg.runs_dir, "final", "r1b_spaq", "scores.csv"))
+    r1r = read_scores_csv(os.path.join(cfg.runs_dir, "final", "r1r_spaq", "scores.csv"))
+    r2 = read_scores_csv(os.path.join(cfg.runs_dir, "final", "r2_spaq", "scores.csv"))
+    return r1b, r1r, r2

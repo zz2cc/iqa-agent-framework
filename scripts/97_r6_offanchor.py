@@ -31,6 +31,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from iqa_agent.config import get_config
 from iqa_agent.client import VLMClient, gather_with_progress
 from iqa_agent.data import load_images, load_mos
+from iqa_agent.router import gate_weights, load_spaq_gate
 from iqa_agent.prompts.skills import SKILLS, SKILL_ORDER
 from iqa_agent.scoring import parse_score
 from iqa_agent.metrics import compute_metrics
@@ -118,7 +119,7 @@ def dynamic_fusion(fusion, skills3, feat):
 
 
 def opencv_features(img):
-    """纯 numpy/PIL 手工特征（与 90_run_r45.py 逐行一致）。"""
+    """纯 numpy/PIL 手工特征（与 iqa_agent.router.opencv_features 逐行一致）。"""
     arr = np.asarray(img.convert("RGB"), dtype=np.float64)
     gray = 0.299 * arr[..., 0] + 0.587 * arr[..., 1] + 0.114 * arr[..., 2]
     c = gray[1:-1, 1:-1]
@@ -235,12 +236,7 @@ async def run_spaq_offanchor(cfg, client, args):
     comp_path = os.path.join(cfg.runs_dir, "r5_spaq_components.json")
     comp = jload(comp_path) if os.path.exists(comp_path) else {}
 
-    # 软门控模型（不动）
-    from importlib.util import spec_from_file_location, module_from_spec
-    _spec = spec_from_file_location("r45", os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "90_run_r45.py"))
-    _r45 = module_from_spec(_spec)
-    _spec.loader.exec_module(_r45)
+    # 软门控模型（从 iqa_agent.router 加载，缺文件时自动等权回退）
 
     # 读取 R2 SPAQ 缓存中的旧专家分（仅用于获取 id 列表，数值不用）
     r2_spaq_path = os.path.join(cfg.runs_dir, "final", "r2_spaq", "scores.csv")
@@ -308,7 +304,7 @@ async def run_spaq_offanchor(cfg, client, args):
 
         img = Image.open(images[img_id])
         img.thumbnail((1568, 1568), Image.BICUBIC)
-        gw = _r45.gate_weights(_r45.load_spaq_gate(cfg), opencv_features(img))
+        gw = gate_weights(load_spaq_gate(cfg), opencv_features(img))
         final = float(gw[0] * bare + gw[1] * rich + gw[2] * multi)
         reason = (f"R6-offanchor: 软门控 bare×{gw[0]:.2f} rich×{gw[1]:.2f} "
                   f"multi×{gw[2]:.2f} [multi=offanchor S-TECH+S-GLOBAL, rich=cached para3]")
