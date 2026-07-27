@@ -323,38 +323,35 @@ def sec_api(cfg, limit=None):
     return api_results
 
 
-def print_compare(cached_table, pipe_results, api_results=None):
-    """打印对照验证表。"""
-    print("\n" + "=" * 72)
-    print("[对照] 缓存 vs 管线重算 vs API 重跑")
-    print("=" * 72)
-    print(f"  {'─'*72}")
-    print(f"  {'KonIQ':>30s}  {'':>6s}  {'SPAQ':>30s}")
-    print(f"  {'SRCC':>14s}  {'MAE':>9s}  {'':>6s}  {'SRCC':>14s}  {'MAE':>9s}")
-    print(f"  {'─'*72}")
+def print_compare(cached_table, api_results=None):
+    """仅在有 API 结果时打印对照表：R6缓存 vs R6实时API。"""
+    if not api_results: return
+    ak = api_results.get(("koniq", "api"), {})
+    a_s = api_results.get(("spaq", "api"), {})
+    if not ak.get("SRCC") or not a_s.get("SRCC"): return
 
-    # find cached R6 in table
     r6k = r6s = None
     for row in cached_table:
         if row[0] == "R6 (统一框架)":
-            r6k = (row[1], row[2])
-            r6s = (row[3], row[4])
+            r6k = (row[1], row[2]); r6s = (row[3], row[4]); break
 
-    if r6k:
-        sk, mk = r6k; ss, ms = r6s
-        print(f"  {'R6 缓存':>20s}  {sk:>8.4f}  {mk:>8.4f}  {'':>6s}  {ss:>8.4f}  {ms:>8.4f}")
-    if "koniq" in pipe_results:
-        pk = pipe_results["koniq"]["recomputed"]
-        ps = pipe_results.get("spaq", {}).get("recomputed")
-        if pk and ps:
-            print(f"  {'R6 管线重算':>20s}  {pk['SRCC']:>8.4f}  {pk['MAE']:>8.4f}  {'':>6s}  {ps['SRCC']:>8.4f}  {ps['MAE']:>8.4f}")
-    if api_results:
-        ak = api_results.get(("koniq", "api"), {})
-        a_s = api_results.get(("spaq", "api"), {})
-        if ak.get("SRCC") and ak.get("MAE"):
-            print(f"  {'R6 API重跑(200张)':>20s}  {ak['SRCC']:>8.4f}  {ak['MAE']:>8.4f}  {'':>6s}  {a_s['SRCC']:>8.4f}  {a_s['MAE']:>8.4f}")
-    print(f"  {'─'*72}")
-    print(f"\n  解读: 三行数值应在 ±0.01 内一致。若一致 → 评分非偶然；若偏差 >0.01 → 见 error log。")
+    if not r6k: return
+    sk, mk = r6k; ss, ms = r6s
+
+    print("\n" + "=" * 72)
+    print("[对照] 缓存 vs API 实时重跑 — 排除偶然性")
+    print("=" * 72)
+    print(f"  {'─'*62}")
+    print(f"  {'':>20s}  {'KonIQ SRCC':>10s}  {'KonIQ MAE':>10s}  {'SPAQ SRCC':>10s}  {'SPAQ MAE':>10s}")
+    print(f"  {'─'*62}")
+    print(f"  {'R6 缓存(预存)':>20s}  {sk:>10.4f}  {mk:>10.4f}  {ss:>10.4f}  {ms:>10.4f}")
+    print(f"  {'R6 API重跑(200张)':>20s}  {ak['SRCC']:>10.4f}  {ak['MAE']:>10.4f}  {a_s['SRCC']:>10.4f}  {a_s['MAE']:>10.4f}")
+    dk_s = ak['SRCC'] - sk; dk_m = ak['MAE'] - mk
+    ds_s = a_s['SRCC'] - ss; ds_m = a_s['MAE'] - ms
+    print(f"  {'差值':>20s}  {dk_s:>+10.4f}  {dk_m:>+10.4f}  {ds_s:>+10.4f}  {ds_m:>+10.4f}")
+    print(f"  {'─'*62}")
+    all_ok = all(abs(d) < 0.02 for d in [dk_s, dk_m, ds_s, ds_m])
+    print(f"\n  {'V 缓存与实际重跑一致（±0.02以内）— 指标非偶然' if all_ok else '! 差值 > 0.02 — 需排查'}")
 
 
 def sec_html(cfg, cached_table, api_results=None):
@@ -420,19 +417,19 @@ def main():
         api_r = sec_api(cfg, args.limit)
         if api_r and os.path.exists(CACHE_JSON):
             tb = json.load(open(CACHE_JSON, encoding="utf-8"))
-            print_compare(tb, {}, api_r)
+            print_compare(tb, api_r)
         return
 
     if do_default:
         sec_env(cfg)
         cached_table = sec_table(cfg)
-        pipe_results = sec_pipeline(cfg, args.limit)
+        sec_pipeline(cfg, args.limit)
         sec_cke(cfg)
-        print_compare(cached_table, pipe_results)
 
     if do_api:
         api_r = sec_api(cfg, args.limit)
         cached_table = json.load(open(CACHE_JSON, encoding="utf-8")) if os.path.exists(CACHE_JSON) else []
+        print_compare(cached_table, api_r)
         print_compare(cached_table, {}, api_r)
 
 
