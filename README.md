@@ -53,12 +53,29 @@ cp .env.example .env
 # 编辑 .env，填入 DASHSCOPE_API_KEY=sk-xxxxxxxx
 ```
 
-`.env` 中需要两个变量：
+`.env` 中需要：
 
 ```
 DASHSCOPE_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 DASHSCOPE_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
+# 数据集路径（如果不放在项目目录下，取消注释并修改）：
+# IQADATA=D:/path/to/datasets
 ```
+
+**数据集目录结构**（从任务书百度网盘下载后解压，放在项目根目录 `评测数据集/` 或其他位置）：
+
+```
+评测数据集/
+├── koniq-10k/
+│   ├── 512x384/            # KonIQ 验证集图片（*.jpg）
+│   ├── koniq10k_val.csv    # 验证集标签
+│   └── koniq10k_train.csv  # 训练集标签
+└── SPAQ/
+    ├── images/TestImage/   # SPAQ 测试集图片（*.jpg）
+    └── spaqTest.csv        # 测试集标签
+```
+
+如果数据集不在项目根目录下，在 `.env` 中设置 `IQADATA=你的路径`，程序会从 `$IQADATA/koniq-10k/` 和 `$IQADATA/SPAQ/` 读取。
 
 ---
 

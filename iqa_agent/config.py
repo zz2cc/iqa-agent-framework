@@ -20,8 +20,8 @@ def _load_dotenv():
 @dataclass
 class Config:
     # ---- 模型 ----
-    model_main: str = "qwen3-vl-32b-instruct"   # 正式跑分
-    model_debug: str = "qwen3-vl-8b-instruct"   # 联调/冒烟
+    model_main: str = "qwen3-vl-32b-instruct"
+    model_debug: str = "qwen3-vl-8b-instruct"
     # ---- API ----
     base_url: str = "https://dashscope.aliyuncs.com/compatible-mode/v1"
     concurrency: int = 16
@@ -29,11 +29,13 @@ class Config:
     timeout: int = 180
     max_tokens: int = 300
     # ---- 数据路径 ----
-    koniq_img_dir: str = os.path.join(ROOT, "评测数据集", "koniq-10k", "512x384")
-    koniq_val_csv: str = os.path.join(ROOT, "评测数据集", "koniq-10k", "koniq10k_val.csv")
-    koniq_train_csv: str = os.path.join(ROOT, "评测数据集", "koniq-10k", "koniq10k_train.csv")
-    spaq_img_dir: str = os.path.join(ROOT, "评测数据集", "SPAQ", "images", "TestImage")
-    spaq_test_csv: str = os.path.join(ROOT, "评测数据集", "SPAQ", "spaqTest.csv")
+    #  设置环境变量 IQADATA=你的数据集目录。
+    #  目录结构: $IQADATA/koniq-10k/512x384/ 和 $IQADATA/SPAQ/images/TestImage/
+    koniq_img_dir: str = ""
+    koniq_val_csv: str = ""
+    koniq_train_csv: str = ""
+    spaq_img_dir: str = ""
+    spaq_test_csv: str = ""
     # ---- 输出 ----
     runs_dir: str = os.path.join(ROOT, "runs")
     cache_dir: str = os.path.join(ROOT, "runs", "cache")
@@ -42,10 +44,23 @@ class Config:
     scales: dict = field(default_factory=lambda: {"koniq": (1.0, 5.0), "spaq": (0.0, 10.0)})
     # ---- 抽样 ----
     seed: int = 42
-    ladder_seed: int = 42     # 阶梯源图抽样
-    workset_seed: int = 43    # CKE 工作集抽样（与阶梯不同种子 → 不重叠）
+    ladder_seed: int = 42
+    workset_seed: int = 43
     ladder_n_sources: int = 200
     workset_size: int = 1000
+
+    def __post_init__(self):
+        _data = os.environ.get("IQADATA", os.path.join(ROOT, "评测数据集"))
+        if not self.koniq_img_dir:
+            self.koniq_img_dir = os.path.join(_data, "koniq-10k", "512x384")
+        if not self.koniq_val_csv:
+            self.koniq_val_csv = os.path.join(_data, "koniq-10k", "koniq10k_val.csv")
+        if not self.koniq_train_csv:
+            self.koniq_train_csv = os.path.join(_data, "koniq-10k", "koniq10k_train.csv")
+        if not self.spaq_img_dir:
+            self.spaq_img_dir = os.path.join(_data, "SPAQ", "images", "TestImage")
+        if not self.spaq_test_csv:
+            self.spaq_test_csv = os.path.join(_data, "SPAQ", "spaqTest.csv")
 
 
 def get_config() -> Config:
