@@ -1,0 +1,22 @@
+{
+ "rules": [
+  "When assessing image quality, do not reward high contrast or stylized grain if it obscures fine details or introduces artifacts; instead, prioritize preservation of texture and edge clarity.",
+  "Do not assign high scores to images with dramatic color grading or saturation unless they enhance realism or emotional impact without distorting natural tones.",
+  "When content is culturally or historically significant (e.g., ancient carvings, architecture), prioritize legibility and structural integrity over artistic interpretation."
+ ],
+ "tags": [
+  "TECH",
+  "AESTH",
+  "CONTENT"
+ ],
+ "scores": [
+  1.2,
+  1.2,
+  1.2
+ ],
+ "rounds_alive": [
+  1,
+  1,
+  1
+ ]
+}

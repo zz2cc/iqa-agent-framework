@@ -1,0 +1,9 @@
+{
+ "domain": "koniq",
+ "n": 300,
+ "tau_single": 0.5589,
+ "tau_vote": 0.6284,
+ "unique_single": 3,
+ "unique_vote": 11,
+ "gate_pass": true
+}

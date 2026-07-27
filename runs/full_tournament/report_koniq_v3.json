@@ -1,0 +1,18 @@
+{
+ "n_nodes": 2500,
+ "n_new": 1501,
+ "n_duels": 32389,
+ "G2_bt_holdout_acc": 0.8374,
+ "G2_old_holdout_acc": 0.7379,
+ "G2_pass": true,
+ "G3_split_half_srcc": 0.7947,
+ "G3_pass": true,
+ "ledger": {
+  "model": "qwen3-vl-32b-instruct",
+  "api_calls": 0,
+  "cache_hits": 679,
+  "tokens_in": 0,
+  "tokens_out": 0
+ },
+ "verdict": "GO"
+}

@@ -28,3 +28,9 @@ runs/cache/
 # Large data (images)
 评测数据集/
 
+# Misc
+*.pdf
+*.zip
+*.log
+~$*
+

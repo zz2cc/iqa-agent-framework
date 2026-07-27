@@ -1,0 +1,51 @@
+{
+ "round": 0,
+ "model": "qwen3-vl-8b-instruct",
+ "judge_temp": 0.7,
+ "anchors": [
+  "2496466506.jpg",
+  "5172112194.jpg",
+  "4771924563.jpg",
+  "2064478851.jpg",
+  "3295126634.jpg",
+  "5827032065.jpg",
+  "6124044226.jpg",
+  "10532663625.jpg",
+  "7186783534.jpg",
+  "316618516.jpg",
+  "2909358760.jpg",
+  "3277047132.jpg",
+  "9353536560.jpg",
+  "9179494563.jpg",
+  "8033033726.jpg",
+  "7660478078.jpg",
+  "8950318830.jpg",
+  "582148952.jpg",
+  "5240740919.jpg",
+  "4476029726.jpg"
+ ],
+ "disagreement_mean": 0.33580660661208145,
+ "candidates": [
+  "[TECH] When assessing sharpness or noise, prioritize whether the artifact enhances the subject's story rather than distracting from it.",
+  "[AESTH] When judging emotional impact, avoid penalizing images for unconventional lighting if the mood aligns with the content.",
+  "[CONTENT] If a subject is inherently ambiguous or abstract, defer to comparative consensus over technical perfection in analytic scoring.",
+  "[NATURAL] Do not downgrade an image solely for non-natural lighting if the composition successfully evokes a specific atmosphere.",
+  "[GENERAL] Always ask: “Does this flaw serve the image’s purpose?” before assigning a negative score in any paradigm."
+ ],
+ "gate": {
+  "mono_pre": 0.4583333333333333,
+  "mono_post": 0.425,
+  "dis_pre": 0.33580660661208145,
+  "dis_post": 0.3383015217616342,
+  "pass": false
+ },
+ "accepted": [],
+ "library_size": 0,
+ "ledger": {
+  "model": "qwen3-vl-8b-instruct",
+  "api_calls": 100,
+  "cache_hits": 3271,
+  "tokens_in": 70940,
+  "tokens_out": 3974
+ }
+}

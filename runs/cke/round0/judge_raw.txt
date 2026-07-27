@@ -1,0 +1,8 @@
+ANALYSIS: Group-1 images exhibit high disagreement because analytic scoring (B) is sensitive to technical flaws like noise, blur, or unnatural lighting, while comparative ranking (C) prioritizes aesthetic impact and compositional intent. For example, Image 8’s low B-score stems from harsh shadows and overexposed highlights, but C ranks it higher due to its dramatic mood; conversely, Image 2’s B-score suffers from severe motion blur and loss of detail, yet C finds it compelling as an abstract texture. Group-2 images are consistent because they lack such conflicting elements — their subjects are clear, lighting is balanced, and distortion is minimal or stylistically intentional, making both paradigms agree on quality.
+
+RULES:
+[TECH] When assessing sharpness or noise, prioritize whether the artifact enhances the subject's story rather than distracting from it.
+[AESTH] When judging emotional impact, avoid penalizing images for unconventional lighting if the mood aligns with the content.
+[CONTENT] If a subject is inherently ambiguous or abstract, defer to comparative consensus over technical perfection in analytic scoring.
+[NATURAL] Do not downgrade an image solely for non-natural lighting if the composition successfully evokes a specific atmosphere.
+[GENERAL] Always ask: “Does this flaw serve the image’s purpose?” before assigning a negative score in any paradigm.

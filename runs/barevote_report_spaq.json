@@ -1,0 +1,9 @@
+{
+ "domain": "spaq",
+ "n": 300,
+ "tau_single": 0.8149,
+ "tau_vote": 0.8149,
+ "unique_single": 7,
+ "unique_vote": 25,
+ "gate_pass": true
+}

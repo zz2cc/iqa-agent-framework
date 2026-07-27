@@ -1,0 +1,34 @@
+{
+ "G1_probe_acc": 0.9792,
+ "G1_pass": true,
+ "G2_bt_holdout_acc": 0.8697,
+ "G2_old_holdout_acc": 0.7472,
+ "G2_pass": true,
+ "G2b_src_cv_bt": 0.8542,
+ "G2b_src_cv_old": 0.9375,
+ "G2b_by_family": {
+  "jpeg": {
+   "bt": 0.896,
+   "old": 0.917,
+   "n": 48
+  },
+  "down": {
+   "bt": 0.812,
+   "old": 0.958,
+   "n": 48
+  }
+ },
+ "G3_split_half_srcc": 0.8573,
+ "G3_pass": true,
+ "echo_srcc_bt_vs_old": 0.8086,
+ "n_duels": 3184,
+ "n_invalid": 0,
+ "verdict": "GO（可上全量锦标赛）",
+ "ledger": {
+  "model": "qwen3-vl-32b-instruct",
+  "api_calls": 3654,
+  "cache_hits": 10,
+  "tokens_in": 1795890,
+  "tokens_out": 44372
+ }
+}

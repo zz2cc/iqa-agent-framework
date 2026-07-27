@@ -1,0 +1,32 @@
+{
+ "koniq": {
+  "S-GLOBAL/band": 0.8766666666666667,
+  "S-TECH/band": 0.8566666666666667,
+  "S-GLOBAL/blur": 1.0,
+  "S-TECH/blur": 0.98,
+  "S-GLOBAL/chroma": 0.4266666666666667,
+  "S-TECH/chroma": 0.2833333333333333,
+  "S-GLOBAL/down": 0.8766666666666667,
+  "S-TECH/down": 0.7733333333333333,
+  "S-GLOBAL/jpeg": 0.92,
+  "S-TECH/jpeg": 0.79,
+  "S-GLOBAL/noise": 1.0,
+  "S-TECH/noise": 0.98,
+  "S-GLOBAL/sharp": 0.39,
+  "S-TECH/sharp": 0.395
+ },
+ "spaq": {
+  "S-GLOBAL/band": 0.58,
+  "S-TECH/band": 0.7466666666666667,
+  "S-GLOBAL/blur": 0.6666666666666666,
+  "S-TECH/blur": 0.64,
+  "S-GLOBAL/down": 0.34,
+  "S-TECH/down": 0.42,
+  "S-GLOBAL/jpeg": 0.30666666666666664,
+  "S-TECH/jpeg": 0.34,
+  "S-GLOBAL/noise": 0.6066666666666667,
+  "S-TECH/noise": 0.6866666666666666,
+  "S-GLOBAL/sharp": 0.12666666666666668,
+  "S-TECH/sharp": 0.14666666666666667
+ }
+}

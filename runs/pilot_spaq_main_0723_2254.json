@@ -1,0 +1,19 @@
+{
+ "n": 300,
+ "parse_failures": 7,
+ "wall_time_s": 88.5,
+ "calls_per_s": 3.39,
+ "tokens_in_per_call": 2886.6484641638226,
+ "tokens_out_per_call": 43.62116040955632,
+ "est_cost_usd_per_1k": 0.879,
+ "score_mean": 4.3808873720136745,
+ "score_min": 1.2,
+ "score_max": 9.2,
+ "ledger": {
+  "model": "qwen3-vl-32b-instruct",
+  "api_calls": 293,
+  "cache_hits": 0,
+  "tokens_in": 845788,
+  "tokens_out": 12781
+ }
+}

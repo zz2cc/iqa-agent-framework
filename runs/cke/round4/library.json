@@ -1,0 +1,46 @@
+{
+ "rules": [
+  "When assessing image quality, do not reward high contrast or stylized grain if it obscures fine details or introduces artifacts; instead, prioritize preservation of texture and edge clarity.",
+  "Do not assign high scores to images with dramatic color grading or saturation unless they enhance realism or emotional impact without distorting natural tones.",
+  "When content is culturally or historically significant (e.g., ancient carvings, architecture), prioritize legibility and structural integrity over artistic interpretation.",
+  "When assessing images with high-contrast lighting or strong artificial illumination, do not equate vividness or sharpness with higher quality; instead, evaluate whether the lighting enhances or detracts from perceived realism.",
+  "When judging images with low-light or night scenes, do not reward glow or luminance alone; instead, assess whether the scene appears natural or unnaturally enhanced.",
+  "When scoring any image, do not rely on isolated dimension scores without considering overall impression; instead, integrate technical, aesthetic, and content factors into a holistic judgment.",
+  "When assessing sharpness or detail, do not reward excessive noise or unnatural texture enhancement if it compromises the subject’s appearance or realism.",
+  "When evaluating color and lighting, prioritize visual harmony and emotional impact over mere vibrancy or contrast.",
+  "If the subject is obscured or distorted by foreground elements or shallow depth-of-field, score lower for content clarity even if technical metrics are high."
+ ],
+ "tags": [
+  "TECH",
+  "AESTH",
+  "CONTENT",
+  "TECH",
+  "NATURAL",
+  "GLOBAL",
+  "TECH",
+  "AESTH",
+  "CONTENT"
+ ],
+ "scores": [
+  1.5999999999999999,
+  1.5999999999999999,
+  1.5999999999999999,
+  1.4,
+  1.4,
+  1.4,
+  1.2,
+  1.2,
+  1.2
+ ],
+ "rounds_alive": [
+  3,
+  3,
+  3,
+  2,
+  2,
+  2,
+  1,
+  1,
+  1
+ ]
+}

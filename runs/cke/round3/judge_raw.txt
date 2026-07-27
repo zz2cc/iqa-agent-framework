@@ -1,0 +1,9 @@
+ANALYSIS:  
+In Group 1 (disagreement), the analytic panel (B) often overrates images with strong technical features but poor aesthetic coherence or content engagement. For example, Image 1 (woman in feathers) has high saturation and sharpness but is visually chaotic; the panel may have scored it highly for “color” and “detail,” while duel participants (C) likely found it jarring or unnatural. Similarly, Image 15 (shark aquarium) is technically clear but suffers from a distracting silhouette foreground—analytic scorers may have ignored composition, while pairwise judges penalized the lack of visual harmony. Image 14 (beach scene) is overexposed and washed out, yet B scores it higher than C, suggesting a bias toward brightness or clarity over naturalness. In contrast, Group 2 images (e.g., Image 16, 17, 23) show consistent quality: either uniformly degraded (Image 16, 23) or well-composed and natural (Image 17, 19). These are easier to judge because distortions are obvious and pervasive, or the image’s intent is clearly fulfilled without conflicting cues.
+
+RULES:  
+[TECH] When assessing sharpness or detail, do not reward excessive noise or unnatural texture enhancement if it compromises the subject’s appearance or realism.  
+[AESTH] When evaluating color and lighting, prioritize visual harmony and emotional impact over mere vibrancy or contrast.  
+[CONTENT] If the subject is obscured or distorted by foreground elements or shallow depth-of-field, score lower for content clarity even if technical metrics are high.  
+[NATURAL] When an image appears overly processed or artificial (e.g., unnatural skin tones, blown highlights), downgrade its overall quality regardless of technical perfection.  
+[GLOBAL] Always consider the entire image as a unified whole—do not isolate dimensions like “color” or “sharpness” if they conflict with overall perceptual quality.

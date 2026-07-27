@@ -1,0 +1,45 @@
+{
+ "equal_weight_cv": {
+  "blur": {
+   "test": 0.96
+  },
+  "noise": {
+   "test": 0.9517
+  },
+  "jpeg": {
+   "test": 0.685
+  },
+  "dark": {
+   "test": 0.6633
+  }
+ },
+ "fitted_cv": {
+  "blur": {
+   "train": 0.775,
+   "test": 0.96
+  },
+  "noise": {
+   "train": 0.7778,
+   "test": 0.9517
+  },
+  "jpeg": {
+   "train": 0.8644,
+   "test": 0.69
+  },
+  "dark": {
+   "train": 0.8678,
+   "test": 0.6717
+  }
+ },
+ "final": {
+  "weights": {
+   "S-TECH": 1.0875000000000001,
+   "S-AESTH": 0.7000000000000001,
+   "S-CONTENT": 1.2,
+   "S-NATURAL": 0.9,
+   "S-GLOBAL": 1.2
+  },
+  "mono": 0.8217,
+  "equal_mono": 0.815
+ }
+}

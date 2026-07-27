@@ -1,0 +1,23 @@
+{
+ "domain": "spaq",
+ "n_nodes": 400,
+ "n_desc": 200,
+ "G1_probe_acc": 0.9375,
+ "G1_pass": true,
+ "G2_bt_holdout_acc": 0.902,
+ "G2_old_holdout_acc": 0.8544,
+ "G2_pass": true,
+ "G3_split_half_srcc": 0.889,
+ "G3_pass": true,
+ "echo_srcc_bt_vs_old": 0.9535,
+ "n_duels": 4045,
+ "n_invalid": 0,
+ "ledger": {
+  "model": "qwen3-vl-32b-instruct",
+  "api_calls": 1800,
+  "cache_hits": 500,
+  "tokens_in": 6486129,
+  "tokens_out": 12600
+ },
+ "verdict": "GO"
+}
