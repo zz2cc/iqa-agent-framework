@@ -43,12 +43,14 @@
 ## 2. 环境配置
 
 ```bash
+# 1. 安装 Python 包
 pip install numpy scipy pillow
 # 如果要用 --api 模式调大模型打分，额外安装：
 pip install openai
 
+# 2. 配置环境
 cp .env.example .env
-# 编辑 .env，填入 DASHSCOPE_API_KEY=sk-xxxxxxxx
+# 编辑 .env，必填以下三项：
 ```
 
 `.env` 中需要：
@@ -56,11 +58,11 @@ cp .env.example .env
 ```
 DASHSCOPE_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 DASHSCOPE_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
-# 数据集路径（不放在项目目录下时取消注释）：
-# IQADATA=D:/path/to/datasets
+# 数据集路径（必填！如果数据集不在项目根目录的 "评测数据集/"）：
+IQADATA=D:/path/to/datasets
 ```
 
-**数据集目录结构**（从任务书百度网盘下载后解压，放在项目根目录 `评测数据集/` 或通过 `IQADATA` 指向）：
+**数据集目录结构**（从任务书百度网盘下载后解压，放在项目根目录 `评测数据集/` 或通过 `IQADATA` 指向任意位置）：
 
 ```
 评测数据集/
