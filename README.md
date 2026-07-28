@@ -24,11 +24,12 @@
 
 ## 1. 给老师的三步复现
 
+> **无需完整数据集即可验证**：仓库已内置 `test_data/`（KonIQ+SPAQ 各 200 张，63MB）。默认模式可打出全部 8 臂主表——**直接跳到第 1 步即可**。仅 R6 管线重算（需要 3000 张图片算特征）和完整数据集上的 API 抽样才需要下载数据集。
+
 ```bash
-# 0. 下载数据集（百度网盘）
+# （可选）下载完整数据集（百度网盘）
 #   链接: https://pan.baidu.com/s/16CeAUEb8SaUHI15JzjNvjg  提取码: 1234
 #   解压到项目根目录，形成 评测数据集/koniq-10k/ 和 评测数据集/SPAQ/
-#   （解压后目录里的 Annotations/ 和 SPAQ.zip 是原始数据集自带的，代码不读取，不用管）
 
 # 1. clone + 装包
 git clone https://github.com/zz2cc/iqa-agent-framework.git
@@ -42,11 +43,6 @@ cp .env.example .env
 # 3. 双击运行
 verify.bat
 ```
-
-`verify.bat` 跑完依次询问：是否 API 抽样验证？是否生成 HTML 报告？选 y 即可。窗口不闪退。
-
-> **不需要 API 验证？** 直接 `python scripts/verify.py --html-only` 秒出 HTML 报告。
-> **没下载完整数据集？** `--api` 和 `--api-only` 自动用仓库内的 `test_data/`（200+200张，63MB），无需数据集。
 
 ## 2. verify.py 模式速览
 
