@@ -54,6 +54,14 @@ verify.bat
 
 > **推荐流程**：双击 `verify.bat`，选 n（跳过 API），选 y（生成 HTML），搞定。想看 API 实时重跑结果再选 y 跑 API，跑完再次生成 HTML 即可看到含 API 散点图的完整报告。
 
+**完整数据集上的运行**：下载数据集并解压到项目根目录（或设 `IQADATA` 路径）后，默认模式会跑全量 R6 管线（KonIQ 2014 张 + SPAQ 1124 张逐张特征计算，约 10 分钟）。`--api` 也会从完整数据集中各抽样 200 张而非使用 test_data。完整运行：
+
+```bash
+python scripts/verify.py               # 主表 + R6全量管线(需数据集)
+python scripts/verify.py --api-only    # API抽样(需数据集或test_data)
+python scripts/verify.py --html-only   # 生成HTML报告
+```
+
 **输出内容：**
 
 - **[1/5] 环境自检** — Python版本、包依赖、数据集路径、API Key、冻结文件完整性
