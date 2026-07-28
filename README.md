@@ -25,21 +25,28 @@
 ## 1. 给老师的三步复现
 
 ```bash
+# 0. 下载数据集（百度网盘）
+#   链接: https://pan.baidu.com/s/16CeAUEb8SaUHI15JzjNvjg  提取码: 1234
+#   解压到项目根目录，形成 评测数据集/koniq-10k/ 和 评测数据集/SPAQ/
+#   （解压后目录里的 Annotations/ 和 SPAQ.zip 是原始数据集自带的，代码不读取，不用管）
+
 # 1. clone + 装包
 git clone https://github.com/zz2cc/iqa-agent-framework.git
 cd iqa-agent-framework
 pip install numpy scipy pillow openai
 
-# 2. 配置
+# 2. 配置 API Key
 cp .env.example .env
 # 编辑 .env，填 DASHSCOPE_API_KEY=sk-xxxxxxxx
 
-# 3. 运行
-python scripts/verify.py
-#  或双击 verify.bat
+# 3. 双击运行
+verify.bat
 ```
 
-`verify.bat` 跑完会依次询问：是否 API 抽样验证？是否生成 HTML 报告？选 y 即可。窗口不会闪退。
+`verify.bat` 跑完依次询问：是否 API 抽样验证？是否生成 HTML 报告？选 y 即可。窗口不闪退。
+
+> **不需要 API 验证？** 直接 `python scripts/verify.py --html-only` 秒出 HTML 报告。
+> **没下载完整数据集？** `--api` 和 `--api-only` 自动用仓库内的 `test_data/`（200+200张，63MB），无需数据集。
 
 ## 2. verify.py 模式速览
 
@@ -80,7 +87,7 @@ python scripts/verify.py
 | Backbone | `qwen3-vl-32b-instruct`（DashScope API，T=0） | 禁止（§4.1） |
 | Skill 技能库 | S-TECH/S-GLOBAL/S-CONTENT，各含7个可独立开关的提示词组件 | 不可训练 |
 | Router/Decision | 门控矩阵 W(3×7)（21个浮点数）、冲突裁决、解释生成 | **唯一可训练层**（§4.3） |
-| 监督信号 | 合成失真阶梯+Bradley-Terry锦标赛（训练集像素自衍生，零MOS） | — |
+| 监督信号 | Bradley-Terry 锦标赛（训练集像素自衍生，零MOS，用于训练唯一可训练的门控矩阵W） | — |
 | 7维像素特征 | lap_var(锐度)/noise(噪声)/colorful(色彩)/bright(亮度)/logpix(分辨率)/aspect(宽高比)/spread(专家分歧度) | 纯OpenCV，零训练 |
 
 ## 4. 环境配置
@@ -88,7 +95,7 @@ python scripts/verify.py
 ```bash
 pip install numpy scipy pillow openai
 cp .env.example .env
-# 编辑 .env，填入：
+# 编辑 .env，填入 API Key：
 ```
 
 ```
@@ -96,7 +103,19 @@ DASHSCOPE_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 DASHSCOPE_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
 ```
 
-> **关于数据集**：`--api` 模式需要图片来调模型打分。默认自动使用仓库内的 `test_data/`（KonIQ+SPAQ 各200张，共63MB），无需额外配置。如果有完整数据集（30GB），在 `.env` 中设置 `IQADATA=路径` 即可切换。
+**数据集**（百度网盘）：https://pan.baidu.com/s/16CeAUEb8SaUHI15JzjNvjg  提取码: 1234
+
+下载后解压到项目根目录，形成 `评测数据集/koniq-10k/512x384/` 和 `评测数据集/SPAQ/images/TestImage/`。解压后目录里的 `Annotations/` 和 `SPAQ.zip` 是原始数据集自带的，代码不读取，不用管。
+
+**如果数据集放在其他位置**，在 `.env` 中设置：
+
+```
+IQADATA=D:/你的路径/评测数据集
+```
+
+程序会从 `$IQADATA/koniq-10k/512x384/` 等子路径读取。不设则默认读项目根目录下的 `评测数据集/`。
+
+> **没有完整数据集也能跑**：仓库内的 `test_data/` 含 KonIQ+SPAQ 各 200 张（63MB）。`--api` 模式在完整数据集缺失时自动回退到 `test_data/`。主表验证需要完整数据集的 MOS 标签 CSV（三个文件共 538KB，已在仓库根目录）。
 
 ## 5. 目录结构
 
@@ -231,5 +250,5 @@ python scripts/make_paper.py       # → docs/验收论文.docx
 | §4.4 禁止信息不入在线输入 | 数据集名/ID/MOS/失真类型/划分信息全项目零出现 |
 | MOS 仅离线评测（§4.5） | `load_mos()` 为唯一 MOS 读取入口 |
 | 训练集像素使用批准 | 经指导教师书面批准，仅用于自监督信号构造 |
-| 监督信号全部自衍生 | 合成失真阶梯 + BT 锦标赛 — 零 MOS 接触 |
+| 监督信号全部自衍生 | BT 锦标赛（训练集像素自衍生，零 MOS）—— 合成失真阶梯仅用于开发阶段体检，未进入最终框架 |
 | 经 GitHub clone 验证 | `python scripts/verify.py` 全指标精确一致 |
