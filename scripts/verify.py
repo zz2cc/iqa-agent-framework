@@ -227,7 +227,7 @@ def sec_cke(cfg):
         print(f"\n  [注意] 文件不存在: {p}")
 
 
-def sec_api(cfg, limit=None):
+def sec_api(cfg, limit=None, full_dataset=False):
     """返回 {('koniq','api'): metrics, ('spaq','api'): metrics}"""
     print("\n" + "=" * 72)
     print("[5/5] API 抽样重跑 (KonIQx200 + SPAQx200, 32B)"); print("=" * 72)
@@ -271,8 +271,10 @@ def sec_api(cfg, limit=None):
                 from iqa_agent.data import load_images
                 imgs = {r.img_id: r.path for r in load_images(cfg, eval_ds)}
                 ids_all = sorted(set(imgs) & set(mos))
-            random.seed(42); sample = sorted(random.sample(ids_all, min(200, len(ids_all))))
-            print(f"    数据源: {src_label}  抽样: {len(sample)} 张")
+            sample_n = len(ids_all) if (full_dataset and src_label != "test_data") else min(200, len(ids_all))
+            random.seed(42); sample = sorted(random.sample(ids_all, sample_n))
+            src_extra = " (全量)" if (full_dataset and src_label != "test_data" and sample_n > 200) else ""
+            print(f"    数据源: {src_label}  抽样: {len(sample)} 张{src_extra}")
 
             expert_api = {}
             for sk in POOL:
@@ -483,13 +485,13 @@ th{{background:#1b2a4a;color:#fff}}tr:nth-child(even){{background:#f5f5f5}}
 # ═══════════ main ═══════════
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--api", action="store_true"); ap.add_argument("--html", action="store_true")
+    ap.add_argument("--api", action="store_true"); ap.add_argument("--api-full", action="store_true"); ap.add_argument("--html", action="store_true")
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--api-only", action="store_true"); ap.add_argument("--html-only", action="store_true")
     args = ap.parse_args()
 
-    do_default = not args.api and not args.api_only and not args.html and not args.html_only
-    do_api = args.api or args.api_only
+    do_default = not args.api and not args.api_full and not args.api_only and not args.html and not args.html_only
+    do_api = args.api or args.api_full or args.api_only
     do_html = args.html or args.html_only
     cfg = get_config()
 

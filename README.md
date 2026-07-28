@@ -50,15 +50,17 @@ verify.bat
 |---|---|---|---|---|
 | `python scripts/verify.py` | 环境自检 + 主表(8臂) + R6管线 + CKE规则 | 主表不需要；管线需要（缺失时自动跳过） | 零 | ¥0 |
 | `python scripts/verify.py --api` / `--api-only` | KonIQ×200 + SPAQ×200 调32B重跑，与缓存指标对照 | 不需要（自动用 test_data/） | ~1,200次 | ¥8-15 |
+| `python scripts/verify.py --api-full` | **全量** API 重跑（KonIQ 2014 + SPAQ 1124，约 9,400 次） | 需要完整数据集 | ~9,400次 | ¥60-100 |
 | `python scripts/verify.py --html` / `--html-only` | 生成自包含 HTML 报告 | 不需要 | 零 | ¥0 |
 
 > **推荐流程**：双击 `verify.bat`，选 n（跳过 API），选 y（生成 HTML），搞定。想看 API 实时重跑结果再选 y 跑 API，跑完再次生成 HTML 即可看到含 API 散点图的完整报告。
 
-**完整数据集上的运行**：下载数据集并解压到项目根目录（或设 `IQADATA` 路径）后，默认模式会跑全量 R6 管线（KonIQ 2014 张 + SPAQ 1124 张逐张特征计算，约 10 分钟）。`--api` 也会从完整数据集中各抽样 200 张而非使用 test_data。完整运行：
+**完整数据集上的运行**：下载数据集并解压到项目根目录（或设 `IQADATA` 路径）后，默认模式会跑全量 R6 管线（KonIQ 2014 张 + SPAQ 1124 张逐张特征计算，约 10 分钟）。三条命令：
 
 ```bash
 python scripts/verify.py               # 主表 + R6全量管线(需数据集)
-python scripts/verify.py --api-only    # API抽样(需数据集或test_data)
+python scripts/verify.py --api-only    # API抽样(200张,需数据集或test_data)
+python scripts/verify.py --api-full    # API全量(2014+1124张,需数据集,¥60-100)
 python scripts/verify.py --html-only   # 生成HTML报告
 ```
 
