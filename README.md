@@ -46,12 +46,13 @@ verify.bat
 
 ## 2. verify.py 模式速览
 
-| 命令 | 做什么 | API | 费用 |
-|---|---|---|---|
-| `python scripts/verify.py` | 环境自检 + 主表(8臂) + R6管线 + CKE规则 | 零 | ¥0 |
-| `python scripts/verify.py --api` | 同上 + KonIQ×200 + SPAQ×200 调32B重跑 | ~1,200次 | ¥8-15 |
-| `python scripts/verify.py --api-only` | 仅API抽样(跳过默认4步，需先跑过默认) | ~1,200次 | ¥8-15 |
-| `python scripts/verify.py --html-only` | 仅生成HTML(需先跑过默认) | 零 | ¥0 |
+| 命令 | 做什么 | 需要数据集？ | API | 费用 |
+|---|---|---|---|---|
+| `python scripts/verify.py` | 环境自检 + 主表(8臂) + R6管线 + CKE规则 | 主表不需要；管线需要（缺失时自动跳过） | 零 | ¥0 |
+| `python scripts/verify.py --api` / `--api-only` | KonIQ×200 + SPAQ×200 调32B重跑，与缓存指标对照 | 不需要（自动用 test_data/） | ~1,200次 | ¥8-15 |
+| `python scripts/verify.py --html` / `--html-only` | 生成自包含 HTML 报告 | 不需要 | 零 | ¥0 |
+
+> **推荐流程**：双击 `verify.bat`，选 n（跳过 API），选 y（生成 HTML），搞定。想看 API 实时重跑结果再选 y 跑 API，跑完再次生成 HTML 即可看到含 API 散点图的完整报告。
 
 **输出内容：**
 
@@ -99,9 +100,9 @@ DASHSCOPE_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 DASHSCOPE_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
 ```
 
-**数据集**（百度网盘）：https://pan.baidu.com/s/16CeAUEb8SaUHI15JzjNvjg  提取码: 1234
+**数据集**（可选，百度网盘）：https://pan.baidu.com/s/16CeAUEb8SaUHI15JzjNvjg  提取码: 1234
 
-下载后解压到项目根目录，形成 `评测数据集/koniq-10k/512x384/` 和 `评测数据集/SPAQ/images/TestImage/`。解压后目录里的 `Annotations/` 和 `SPAQ.zip` 是原始数据集自带的，代码不读取，不用管。
+下载后解压到项目根目录，形成 `评测数据集/koniq-10k/512x384/` 和 `评测数据集/SPAQ/images/TestImage/`。解压后目录里会自带 `spaq_in_zip/`（原始压缩包副本，33GB）和 `Annotations/`（MATLAB 格式标注文件）——**代码不读取这两个目录，可以安全删除以节省 33GB 空间**。
 
 **如果数据集放在其他位置**，在 `.env` 中设置：
 
